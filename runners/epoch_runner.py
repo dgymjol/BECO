@@ -38,7 +38,9 @@ class EpochRunner(BaseRunner):
         #self.call_hook("before_train_epoch")
         self._hook_dict['CustomModelHook'].before_train_epoch(self)
 
+        breakpoint()
         for i, data in enumerate(self.dataloaders['train']):
+            breakpoint()
             #self.call_hook('before_train_iter')
             self._hook_dict['CustomModelHook'].before_train_iter(self)
 
@@ -93,7 +95,7 @@ class EpochRunner(BaseRunner):
             for mode, epochs in self._workflow.items():
                 assert mode in ('train', 'val')
                 # get train of val function
-                epoch_runner = getattr(self, mode)
+                epoch_runner = getattr(self, mode) # EpochRunner.train() or EpochRunner.val()
                 self._prepare_workflow(mode)        
                 for _ in range(epochs):
                     if mode == 'train' and self.epoch >= self.max_epoch:

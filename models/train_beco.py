@@ -65,8 +65,8 @@ class BECO(BaseSimSeg):
     
 
     def train_step(self, batch: Dict[str, Any]) -> Tuple[Tensor, float]:
+        breakpoint()
         images, labels, masks = batch['img'], batch['target'], batch['mask']
-
         if self.epoch >= self.warm_up:
             images_cuda = self.scatter((images.detach()))
             with autocast(enabled=self.is_amp):
@@ -93,7 +93,6 @@ class BECO(BaseSimSeg):
                                            self.mix_prob)
         if self.mix_aug:
             images, labels, masks = augment_withmask(images, labels, masks)
-
 
         images, labels, masks = self.scatter((images, labels, masks))
         bdry, inside, isbdry = self.scatter((bdry, inside, isbdry))

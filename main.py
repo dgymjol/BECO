@@ -165,7 +165,7 @@ def main_worker(gpu, args: Dict[str, Any]):
 
     dataloader_dict, sampler_dict = get_dataloaders(
         config={
-			"batch_size": 4, #per GPU, total batch_size is 16
+			"batch_size": 8, #per GPU, total batch_size is 16
 			"num_workers": 1,
 			"drop_last": True
 		},
@@ -270,7 +270,7 @@ def main_worker(gpu, args: Dict[str, Any]):
         optim_config={
             "type": "SGD",
             "settings":{
-                "lr": 0.01,
+                "lr": 0.005, # batch 16 -> lr 0.01
                 "momentum": 0.9,
                 "weight_decay": 1e-4
             }
