@@ -67,15 +67,19 @@ class BECO(BaseSimSeg):
     def train_step(self, batch: Dict[str, Any]) -> Tuple[Tensor, float]:
         breakpoint()
         images, labels, masks = batch['img'], batch['target'], batch['mask']
+        # images               : Xi (batch_size, 3, 512, 512)
+        # labels (pesudo label) : Yi (batch_size, 512, 512) (predicted class map) ex) 0, 3
+        # masks  (pseudo mask) : Mi (batch_size, 1, 512, 512) (binary map)
+        
         if self.epoch >= self.warm_up:
-            images_cuda = self.scatter((images.detach()))
+            images_cuda = self.scatter((images.detach())) # cpu -> gpu
             with autocast(enabled=self.is_amp):
                 self.change_net_val()
                 with torch.no_grad():
-                    out = self.forward_cat(images_cuda)
-                    pred = F.softmax(out['logits'], dim=1).cpu()
-                    maxpred, labels_online = torch.max(pred.detach(), dim=1)
-                    mask_online = (maxpred > self.T).unsqueeze(1)
+                    out = self.forward_cat(images_cuda) # pre_logits : (batch_size, 21, 128, 128), logits : (batch_size, 21, 512, 512)
+                    pred = F.softmax(out['logits'], dim=1).cpu() # (batch_size, 21, 512, 512)
+                    maxpred, labels_online = torch.max(pred.detach(), dim=1) # (8, 21, 512, 512), (batch_size, 21, 512, 512)
+                    mask_online = (maxpred > self.T).unsqueeze(1) # (batch_size, 1, 512, 512)
                     mask_online = mask_online.type_as(masks)
                     labels_online = labels_online
                 self.change_net_train()

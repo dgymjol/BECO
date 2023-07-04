@@ -29,22 +29,26 @@ if __name__ == '__main__':
         data_i=torch.load(path)
         pred_i = data_i["pred"]
 
-        score_i = data_i["score"].cpu()
+        score_i = data_i["score"].cpu() # (3, h, w)
         keys = np.unique(pred_i)
 
         a=score_i
         rw_pred = pred_i
-        rw_max=torch.max(a,dim=0)
-        rw_min=torch.min(a,dim=0)
-        a[a==rw_max[0]]=0
-        a_max2=torch.max(a,dim=0)
+        rw_max=torch.max(a,dim=0) # for max(s) ** torch.max return = [values, indices]
+        rw_min=torch.min(a,dim=0) 
+        a[a==rw_max[0]]=0 # ** rw_max[0] = max values not indices
+        a_max2=torch.max(a,dim=0) # max(s2)
+        
+        ### Hi : pixel wise confidence
         sd = rw_max[0]-a_max2[0]
+        
         mask=torch.zeros(rw_pred.shape)
         for key_value in keys:
-            l=np.nonzero(rw_pred==key_value)
-            ll=sd[l]
+            l=np.nonzero(rw_pred==key_value) # l : rw_pred 에서 keyval와 같은 값을 갖는 ele의 index를 반화니
+            ll=sd[l]  ## Qi : the confidence set of pixels of the class c(key_value)
             high=torch.sort(ll,descending=True)[1][:int(len(ll)//(1/thd))]
             l_high=(l[0][high.cpu()],l[1][high.cpu()])
             mask[l_high]=1
+            
         torchvision.utils.save_image(mask,mask_path)
 

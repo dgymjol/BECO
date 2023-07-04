@@ -35,6 +35,7 @@ def generate_class_mask(pred, classes):
 
 
 def random_cls_mask(label, ignore_index=[255]):
+    breakpoint()
     query_cls = []
     img_class = torch.unique(label)
     for idx in ignore_index:
@@ -52,6 +53,7 @@ def random_cls_mask(label, ignore_index=[255]):
 
 
 def _mix_one_withmask(data_list1: List, data_list2: List, ignore_bg=False): 
+    breakpoint()
     ignore_index = [255]
     if ignore_bg:
         ignore_index.append(0)
@@ -62,6 +64,7 @@ def _mix_one_withmask(data_list1: List, data_list2: List, ignore_bg=False):
     return new_data
 
 def imgmix_one_withmask_bdry(data_list1, data_list2, ignore_bg, size, p):
+    breakpoint()
     if random.random() < p:
         img, label, mask = _mix_one_withmask(data_list1, data_list2, ignore_bg)
         bdry = torch.zeros_like(mask)
@@ -76,12 +79,12 @@ def imgmix_one_withmask_bdry(data_list1, data_list2, ignore_bg, size, p):
 def imgmix_multi_withmask_bdry(imgs, labels, masks, size=1,
                                ignore_bg=False, p=1) -> Dict:
     # p=0: no mix; p=1: all mix; 0<p<1: random mix with p
-
-    mid_num = imgs.size(0)
+    breakpoint()
+    mid_num = imgs.size(0) # batch_size
     assert mid_num % 2 == 0, 'batch_size must be a multiple of 2'
-    mid_num = mid_num // 2
-    if len(labels.size()) == 3:
-        labels = labels.unsqueeze(1)
+    mid_num = mid_num // 2 
+    if len(labels.size()) == 3: # (batch_size, 512, 512)
+        labels = labels.unsqueeze(1) # (batch_size, 1, 512, 512)
     img1 = imgs[:mid_num]
     img2 = imgs[mid_num:]
     label1 = labels[:mid_num]
@@ -170,7 +173,6 @@ def imgmix_one_withmaskol_bdry(data_list1, data_list2, ignore_bg, size, p):
 def imgmix_multi_withmaskol_bdry(imgs, labels, masks, labels_ol, masks_ol, 
                                  size=2, ignore_bg=False, p=1.0) -> Dict:
     # p=0: no mix; p=1: all mix; 0<p<1: random mix with p
-
     mid_num = imgs.size(0)
     assert mid_num % 2 == 0, 'batch_size must be a multiple of 2'
     mid_num = mid_num // 2

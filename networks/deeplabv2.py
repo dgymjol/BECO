@@ -51,6 +51,7 @@ class Deeplabv2(nn.Module):
         out = self.backbone(x)
         output = self.aspp(out[4])
 
+        breakpoint()
         if self.msc:
             logits = [output]
             h, w = logits[0].shape[2:]        

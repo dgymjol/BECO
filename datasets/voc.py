@@ -86,22 +86,25 @@ class VOCSegmentationPseuMask(VOC):
     def __init__(self, is_aug: bool = True, mask_dir=None, pseumask_dir=None, 
                  **kwargs):
         super().__init__(is_aug, mask_dir, **kwargs)
-        self.pseumask_dir = pseumask_dir
+        breakpoint()
+        self.pseumask_dir = pseumask_dir # './data/irn_mask'
 
     def __getitem__(self, index):
         img_name = self.file_names[index]
         img_path = os.path.join(self.img_dir, img_name + '.jpg')
-        mask_path = os.path.join(self.mask_dir, img_name + '.png')
+        mask_path = os.path.join(self.mask_dir, img_name + '.png') #'./data/irn_pseudo_label'
         img = Image.open(img_path).convert('RGB')
         target = Image.open(mask_path)
         if self.mode == 'train':
             pseumask_path = os.path.join(self.pseumask_dir, img_name + '.png')
             mask_path = os.path.join(self.mask_dir, img_name + '.png')
             pseumask = Image.open(pseumask_path).convert('1')
-            if self.transform is not None:
+            if self.transform is not None: # True
                 data = {'img': img, 'label': target, 'mask': pseumask}
                 data = self.transform(data)
                 img, target, mask = data['img'], data['label'], data['mask']
+                # target from './data/irn_pseudo_label'
+                # mask from './data/irn_mask'
             target = target.to(torch.long)
             mask = mask.to(torch.long)
             return {'img': img, 'target': target, 
