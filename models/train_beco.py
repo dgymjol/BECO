@@ -90,6 +90,7 @@ class BECO(BaseSimSeg):
                                              self.ignore_bg,
                                              self.mix_prob)
         else:
+            breakpoint()
             images, labels, masks, bdry, inside, isbdry = \
                 imgmix_multi_withmask_bdry(images, labels, masks,
                                            self.bdry_size,

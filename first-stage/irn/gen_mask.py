@@ -49,6 +49,7 @@ if __name__ == '__main__':
             high=torch.sort(ll,descending=True)[1][:int(len(ll)//(1/thd))]
             l_high=(l[0][high.cpu()],l[1][high.cpu()])
             mask[l_high]=1
-            
-        torchvision.utils.save_image(mask,mask_path)
+        
+        # mask : (3, H, W) 인데, channel 3개가 다 똑같음! 그리고 값은 binary
+        torchvision.utils.save_image(mask,mask_path) 
 

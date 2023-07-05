@@ -10,3 +10,6 @@ CUDA_VISIBLE_DEVICES=0 python main.py --test --logging_tag test --ckpt data/logg
 
 # second stage debug
 CUDA_VISIBLE_DEVICES=0 python main.py --logging_tag test
+
+
+python run_sample.py --num_worker 8 --make_sem_seg_pass True --eval_sem_seg_pass True

@@ -51,9 +51,9 @@ def _work(process_id, model, dataset, args):
             score_dir = args.score_dir
             torch.save({"pred":rw_pred,"score":rw_up_bg,"keys":keys},os.path.join(score_dir, img_name + '.pt'))
 
-
+            # breakpoint()
             imageio.imsave(os.path.join(args.sem_seg_out_dir, img_name + '.png'), rw_pred.astype(np.uint8))
-
+            
             if process_id == n_gpus - 1 and iter % (len(databin) // 20) == 0:
                 print("%d " % ((5*iter+1)//(len(databin) // 20)), end='')
 
@@ -72,6 +72,8 @@ def run(args):
 
     print("[", end='')
     multiprocessing.spawn(_work, nprocs=n_gpus, args=(model, dataset, args), join=True)
+    # 디버깅 할 때는 위 코드를 주석처리 하고 아래를 주석 해체해서 실행시킬 것.
+    # _work(0, model, dataset, args)
     print("]")
 
     torch.cuda.empty_cache()

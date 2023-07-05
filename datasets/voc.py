@@ -86,19 +86,19 @@ class VOCSegmentationPseuMask(VOC):
     def __init__(self, is_aug: bool = True, mask_dir=None, pseumask_dir=None, 
                  **kwargs):
         super().__init__(is_aug, mask_dir, **kwargs)
-        breakpoint()
-        self.pseumask_dir = pseumask_dir # './data/irn_mask'
+        self.pseumask_dir = pseumask_dir 
 
     def __getitem__(self, index):
         img_name = self.file_names[index]
         img_path = os.path.join(self.img_dir, img_name + '.jpg')
-        mask_path = os.path.join(self.mask_dir, img_name + '.png') #'./data/irn_pseudo_label'
-        img = Image.open(img_path).convert('RGB')
-        target = Image.open(mask_path)
+        mask_path = os.path.join(self.mask_dir, img_name + '.png') #'./data/irn_pseudo_label' <- sem_seg from make_sem_seg in irn_code
+        img = Image.open(img_path).convert('RGB') 
+        target = Image.open(mask_path)  # import imageio; imageio.imread('test.png') 하면 class num가 매칭된 값들이 나온다.
+                                        # 근데 지금 이 코드처럼 PIL 로 읽으면.. [0, 1, 15]와 같은 class num가 0.003, 0.005와 같이 달라진다.. 
+                                        # 이게 line 105(data = self.transform(data)) 에 가면 uint8로 바뀌면서 우리가 원하는 모양새가 된다!!!
         if self.mode == 'train':
-            pseumask_path = os.path.join(self.pseumask_dir, img_name + '.png')
-            mask_path = os.path.join(self.mask_dir, img_name + '.png')
-            pseumask = Image.open(pseumask_path).convert('1')
+            pseumask_path = os.path.join(self.pseumask_dir, img_name + '.png')  # './data/irn_mask' <- mask_irn from gen_mask.py
+            pseumask = Image.open(pseumask_path).convert('1') # convert('1') : (3, H, W) -> (1, H, W) 단색 이미지로 바꿔주기
             if self.transform is not None: # True
                 data = {'img': img, 'label': target, 'mask': pseumask}
                 data = self.transform(data)

@@ -38,9 +38,9 @@ class EpochRunner(BaseRunner):
         #self.call_hook("before_train_epoch")
         self._hook_dict['CustomModelHook'].before_train_epoch(self)
 
-        breakpoint()
+        # breakpoint()
         for i, data in enumerate(self.dataloaders['train']):
-            breakpoint()
+            # breakpoint()
             #self.call_hook('before_train_iter')
             self._hook_dict['CustomModelHook'].before_train_iter(self)
 

@@ -29,7 +29,11 @@ def getBoundry(mask: Tensor, size=2, iterations=1) -> Tensor:
     return bdry, inside
 
 def generate_class_mask(pred, classes):
+    # pred가 (512, 512)인게 classes 개수(n) 만큼 복사돼서, (n, 512, 512)이 된다. 
+    # classes는 (1, 1, n)에서 각 class 마다 그 class num로 채워진 (512, 512)를 만들어서 결국 (n, 512, 512)가 된다.
     pred, classes = torch.broadcast_tensors(pred.unsqueeze(0), classes.unsqueeze(1).unsqueeze(2))
+    
+    # classes와 동일한 걸 예측한 pred의 pixel만 1로 만들어준다 (N, (512, 512) binary map)
     N = pred.eq(classes).sum(0)
     return N
 
@@ -41,24 +45,29 @@ def random_cls_mask(label, ignore_index=[255]):
     for idx in ignore_index:
         img_class = img_class[img_class != idx]
     num_class = len(img_class)
+    
     class_rd = np.random.choice(img_class.numpy(), 
-                                int((num_class+num_class%2)/2), replace=False)
+                                int((num_class+num_class%2)/2), replace=False) 
+    # 쿼리 class 중 절반(홀수면 반올림한 값)을 랜덤으로 선택(비복원추출) -> class_rd = query_cls
+    
     for k in range(len(class_rd)):
         query_cls.append(class_rd[k])
 
     classes = torch.Tensor(query_cls).long()
-    mixmask = generate_class_mask(label.squeeze(0), classes)
+    mixmask = generate_class_mask(label.squeeze(0), classes) # label: (1, 512, 512) -> (512, 512)
+    # 랜덤으로 고른 class 가 있는 pred의 특정 pixel은 1이 되고 나머지는 0인 binary mask 만들기! mixmask (512, 512)
+    
     return mixmask
 
 
 
 def _mix_one_withmask(data_list1: List, data_list2: List, ignore_bg=False): 
-    breakpoint()
     ignore_index = [255]
     if ignore_bg:
         ignore_index.append(0)
     label2 = data_list2[1]
-    alpha = random_cls_mask(label2, ignore_index)
+    alpha = random_cls_mask(label2, ignore_index) # 예측한 class 중 절반을 random으로 골라서 그 중 
+    breakpoint()
     new_data = (down*(1-alpha) + up*alpha 
                 for down, up in zip(data_list1, data_list2))
     return new_data
